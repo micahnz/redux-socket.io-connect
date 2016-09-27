@@ -1,0 +1,78 @@
+{
+  "name": "@limres/redux-middleware-socket.io-connect",
+  "version": "0.1.0",
+  "description": "redux-middleware-socket.io-connect",
+  "homepage": "https://github.com/limres/redux-middleware-socket.io-connect",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/limres/redux-middleware-socket.io-connect.git"
+  },
+  "bugs": {
+    "url": "https://github.com/limres/redux-middleware-socket.io-connect/issues"
+  },
+  "license": "UNLICENSED",
+  "keywords": [],
+  "author": {
+    "name": "Michael Mitchell",
+    "email": "mike@limres.com"
+  },
+  "maintainers": [
+    {
+      "name": "michaelmitchell",
+      "email": "mike@limres.com"
+    }
+  ],
+  "main": "build/index.js",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-core": "^6.9.1",
+    "babel-eslint": "^6.0.4",
+    "babel-istanbul": "^0.11.0",
+    "babel-loader": "^6.2.4",
+    "babel-plugin-implicit-return": "^1.0.0",
+    "babel-plugin-pipe-composition": "^0.1.1",
+    "babel-plugin-strict-equality": "^1.0.0",
+    "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-preset-latest": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-3": "^6.5.0",
+    "babel-runtime": "^6.9.2",
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.9",
+    "esdoc": "^0.4.7",
+    "esdoc-es7-plugin": "0.0.3",
+    "eslint": "^3.5.0",
+    "mocha": "^3.0.2",
+    "snyk": "^1.14.3"
+  },
+  "dependencies": {
+  },
+  "scripts": {
+    "prebuild": "npm run test && npm run build:clean",
+    "build": "npm run build:js",
+    "build:clean": "rm -rf ./build",
+    "build:js": "./node_modules/.bin/babel src -d build --source-maps=inline",
+    "docs": "./node_modules/.bin/esdoc -c ./esdoc.json",
+    "lint": "./node_modules/.bin/eslint src test",
+    "lint:fix": "npm run lint -- --fix",
+    "prepush": "npm run build",
+    "push": "npm publish",
+    "snyk": "./node_modules/.bin/snyk",
+    "snyk:auth": "npm run -s snyk -- auth $SNYK_TOKEN",
+    "snyk:monitor": "npm run snyk -- monitor",
+    "snyk:protect": "npm run snyk -- protect",
+    "snyk:test": "npm run snyk -- test",
+    "snyk:wizard": "npm run snyk -- wizard",
+    "pretest": "npm run lint",
+    "test": "npm run snyk:test && npm run test:js",
+    "test:cov": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test:js": "NODE_ENV=test ./node_modules/.bin/babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha",
+    "test:js:nocov": "NODE_ENV=test ./node_modules/.bin/babel-node ./node_modules/.bin/_mocha",
+    "watch": "npm run watch:js",
+    "watch:js": "npm run build:js -- --watch"
+  }
+}

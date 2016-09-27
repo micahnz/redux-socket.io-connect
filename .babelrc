@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    [
+      "transform-runtime",
+      {
+        "polyfill": true,
+        "regenerator": true
+      }
+    ],
+    "transform-class-properties",
+    "transform-decorators-legacy",
+    "transform-object-rest-spread",
+    "pipe-composition"
+  ],
+  "presets": [
+		"latest",
+    "react",
+    "stage-3"
+  ]
+}
