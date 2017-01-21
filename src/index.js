@@ -1,5 +1,5 @@
 //
-export const namespace = "@@lirmes/redux-socket.io-connect";
+export const namespace = "@@redux-socket.io-connect";
 
 //
 export const actionTypes = {
@@ -129,7 +129,6 @@ export function createServer(server, handler = defaultHandler, userOptions) {
 
     client.on(options.eventName, (action) => {
       handler(context, action);
-    });
   });
 }
 
