@@ -1,6 +1,6 @@
 {
   "name": "redux-socket.io-connect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "redux-socket.io-connect",
   "homepage": "https://github.com/michaelmitchell/redux-socket.io-connect",
   "repository": {

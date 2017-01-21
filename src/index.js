@@ -129,6 +129,7 @@ export function createServer(server, handler = defaultHandler, userOptions) {
 
     client.on(options.eventName, (action) => {
       handler(context, action);
+    });
   });
 }
 
