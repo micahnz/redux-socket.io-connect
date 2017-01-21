@@ -5,7 +5,7 @@ npm install redux-socket.io-connect --save
 ```
 
 Client setup
-```
+```js
 //
 import React from 'react';
 import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
@@ -38,7 +38,7 @@ const store = createStore(
 ```
 
 Action Example
-```
+```js
 //
 export function load(path) {
   return {
@@ -60,7 +60,7 @@ export function loadSuccess(path) {
 ```
 
 Server setup
-```
+```js
 import express from 'express';
 import http from 'http';
 import io from 'socket.io';
@@ -89,7 +89,7 @@ createServer(socket, handlers, {
 ```
 
 Example server side handler
-```
+```js
 //
 import { createHandler } from 'redux-socket.io-connect';
 import { actionTypes, loadSuccess } from 'actions/page';
