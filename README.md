@@ -20,7 +20,7 @@ const socket = io();
 
 // accepts any object with an "emit" function
 const eventEnhancer = createEventEmitter(socket, {
-  // eventName: '(optional) event name used by event emitter, should match client'
+  // eventName: '(optional) event name used by event emitter, should match server'
   emitAll: true // emits all actions dispatched by redux, defaults to false
 });
 
