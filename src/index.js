@@ -24,7 +24,7 @@ export const dispatcherTypes = {
 export const defaultEventName = `${namespace}/EVENT`;
 
 //
-export const defaultClientOptions = {
+const defaultClientOptions = {
   eventName: defaultEventName,
   dispatchedBy: dispatcherTypes.CLIENT,
   emitAll: false
@@ -37,7 +37,7 @@ const defaultServerOptions = {
 };
 
 //
-export const defaultReducer = (state, action) => action;
+const defaultReducer = (state, action) => action;
 
 // createClient(socket)
 // createClient(socket, userOptions = {})
@@ -57,7 +57,7 @@ export function createClient(socket, ...args) {
 }
 
 //
-export function handleEvent(store, reducer = defaultReducer) {
+function handleEvent(store, reducer = defaultReducer) {
   return (type) => () => {
     const { dispatch, getState } = store;
 
@@ -66,7 +66,7 @@ export function handleEvent(store, reducer = defaultReducer) {
 }
 
 //
-export function handleAction(store, reducer = defaultReducer) {
+function handleAction(store, reducer = defaultReducer) {
   return (message = {}) => {
     const { dispatch, getState } = store;
 
@@ -133,7 +133,7 @@ export function createReduxEventEmitter(eventEmitter, userOptions = {}) {
 }
 
 //
-export const defaultHandler = () => {};
+const defaultHandler = () => {};
 
 //
 export function createServer(server, handler = defaultHandler, userOptions = {}) {
@@ -149,7 +149,7 @@ export function createServer(server, handler = defaultHandler, userOptions = {})
 }
 
 //
-export function createContext(server, client, userOptions = {}) {
+function createContext(server, client, userOptions = {}) {
   const options = { ...defaultServerOptions, ...userOptions };
 
   //
