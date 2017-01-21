@@ -1,5 +1,9 @@
 # redux-socket.io-connect
 
+```
+npm install redux-socket.io-connect --save
+```
+
 Client setup
 ```
 //
