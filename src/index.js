@@ -7,8 +7,6 @@ export const actionTypes = {
   CONNECT_ERROR: `${namespace}/CONNECT_ERROR`,
   CONNECT_TIMEOUT: `${namespace}/CONNECT_TIMEOUT`,
   CONNECT_SUCCESS: `${namespace}/CONNECT_SUCCESS`,
-  CLIENT_REDUX_ACTION: `${namespace}/CLIENT_REDUX_ACTION`,
-  SERVER_REDUX_ACTION: `${namespace}/SERVER_REDUX_ACTION`,
   RECONNECT: `${namespace}/RECONNECT`,
   RECONNECTING: `${namespace}/RECONNECTING`,
   RECONNECT_ERROR: `${namespace}/RECONNECT_ERROR`,
@@ -17,7 +15,46 @@ export const actionTypes = {
 };
 
 //
+export const dispatcherTypes = {
+  CLIENT: `${namespace}/CLIENT`,
+  SERVER: `${namespace}/SERVER`,
+};
+
+//
+export const defaultEventName = `${namespace}/EVENT`;
+
+//
+export const defaultClientOptions = {
+  eventName: defaultEventName,
+  dispatchedBy: dispatcherTypes.CLIENT,
+  emitAll: false
+};
+
+//
+const defaultServerOptions = {
+  eventName: defaultEventName,
+  dispatchedBy: dispatcherTypes.SERVER
+};
+
+//
 export const defaultReducer = (state, action) => action;
+
+// createClient(socket)
+// createClient(socket, userOptions = {})
+// createClient(socket, reducer = defaultReducer, userOptions = {})
+export function createClient(socket, ...args) {
+  const reducer = (args.length < 2) ? defaultReducer : args[0];
+  const userOptions = (args.length < 2) ? args[0] : args[1];
+
+  //
+  const options = { ...defaultClientOptions, ...userOptions };
+
+  //
+  return {
+    middleware: createReduxMiddleware(socket, reducer, options),
+    eventEmitter: createReduxEventEmitter(socket, options)
+  };
+}
 
 //
 export function handleEvent(store, reducer = defaultReducer) {
@@ -38,7 +75,11 @@ export function handleAction(store, reducer = defaultReducer) {
 }
 
 //
-export function createReduxMiddleware(socket, reducer = defaultReducer) {
+export function createReduxMiddleware(socket, reducer = defaultReducer, userOptions = {}) {
+  //
+  const options = { ...defaultClientOptions, ...userOptions };
+
+  //
   return (store) => {
     const onEvent = handleEvent(store, reducer);
 
@@ -54,7 +95,7 @@ export function createReduxMiddleware(socket, reducer = defaultReducer) {
     socket.on("reconnect_failed", onEvent(actionTypes.RECONNECT_FAILED));
 
     //
-    socket.on(actionTypes.SERVER_REDUX_ACTION, handleAction(store, reducer));
+    socket.on(options.eventName, handleAction(store, reducer));
 
     //
     return (next) => (action) => next(action);
@@ -62,25 +103,27 @@ export function createReduxMiddleware(socket, reducer = defaultReducer) {
 }
 
 //
-export function createEventEmitter(eventEmitter, userOptions = {}) {
-  const options = {
-    eventName: actionTypes.CLIENT_REDUX_ACTION,
-    emitAll: false,
-    ...userOptions
-  };
+export function createReduxEventEmitter(eventEmitter, userOptions = {}) {
+  const options = { ...defaultClientOptions, ...userOptions };
 
   return (reducer) => {
-    return (state, action) => {
+    return (state, action = {}) => {
       const newState = reducer(state, action);
+      const { dispatchedBy, emit } = action.meta || {};
 
-      if (action.dispatchedBy === actionTypes.SERVER_REDUX_ACTION) {
+      if (dispatchedBy === dispatcherTypes.SERVER) {
         return newState;
       }
 
-      if (action.emit === true || action.emit === options.eventName || (options.emitAll === true && action.emit !== false)) {
+      const canEmitAll = (options.emitAll === true && emit === undefined);
+
+      if (emit === true || emit === options.eventName || canEmitAll) {
         eventEmitter.emit(options.eventName, {
           ...action,
-          dispatchedBy: actionTypes.CLIENT_REDUX_ACTION
+          meta: {
+            ...action.meta,
+            dispatchedBy: options.dispatchedBy
+          }
         });
       }
 
@@ -89,48 +132,59 @@ export function createEventEmitter(eventEmitter, userOptions = {}) {
   };
 }
 
-export function createContext(server, client) {
-  return {
-    dispatch: (action) => {
-      client.emit(actionTypes.SERVER_REDUX_ACTION, {
-        ...action,
-        dispatchedBy: actionTypes.SERVER_REDUX_ACTION
-      });
-    },
-    dispatchTo: (id, action) => {
-      server.to(id).emit(actionTypes.SERVER_REDUX_ACTION, {
-        ...action,
-        dispatchedBy: actionTypes.SERVER_REDUX_ACTION
-      });
-    },
-    dispatchAll: (action) => {
-      server.sockets.emit(actionTypes.SERVER_REDUX_ACTION, {
-        ...action,
-        dispatchedBy: actionTypes.SERVER_REDUX_ACTION
-      });
-    },
-    server,
-    client
-  };
-}
-
 //
 export const defaultHandler = () => {};
 
 //
-export function createServer(server, handler = defaultHandler, userOptions) {
-  const options = {
-    eventName: actionTypes.CLIENT_REDUX_ACTION,
-    ...userOptions
-  };
+export function createServer(server, handler = defaultHandler, userOptions = {}) {
+  const options = { ...defaultServerOptions, ...userOptions };
 
   server.on("connection", (client) => {
-    const context = createContext(server, client);
+    const context = createContext(server, client, options);
 
     client.on(options.eventName, (action) => {
       handler(context, action);
     });
   });
+}
+
+//
+export function createContext(server, client, userOptions = {}) {
+  const options = { ...defaultServerOptions, ...userOptions };
+
+  //
+  const actions = {
+    dispatch: (action) => {
+      client.emit(options.eventName, {
+        ...action,
+        meta: {
+          ...action.meta,
+          dispatchedBy: options.dispatchedBy
+        }
+      });
+    },
+    dispatchTo: (id, action) => {
+      server.to(id).emit(options.eventName, {
+        ...action,
+        meta: {
+          ...action.meta,
+          dispatchedBy: options.dispatchedBy
+        }
+      });
+    },
+    dispatchAll: (action) => {
+      server.sockets.emit(options.eventName, {
+        ...action,
+        meta: {
+          ...action.meta,
+          dispatchedBy: options.dispatchedBy
+        }
+      });
+    }
+  };
+
+  //
+  return { ...actions, server, client };
 }
 
 //
