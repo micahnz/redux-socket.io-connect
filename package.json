@@ -1,25 +1,34 @@
 {
-  "name": "@limres/redux-middleware-socket.io-connect",
+  "name": "redux-socket.io-connect",
   "version": "0.1.0",
-  "description": "redux-middleware-socket.io-connect",
-  "homepage": "https://github.com/limres/redux-middleware-socket.io-connect",
+  "description": "redux-socket.io-connect",
+  "homepage": "https://github.com/michaelmitchell/redux-socket.io-connect",
   "repository": {
     "type": "git",
-    "url": "https://github.com/limres/redux-middleware-socket.io-connect.git"
+    "url": "https://github.com/michaelmitchell/redux-socket.io-connect.git"
   },
   "bugs": {
-    "url": "https://github.com/limres/redux-middleware-socket.io-connect/issues"
+    "url": "https://github.com/michaelmitchell/redux-socket.io-connect/issues"
   },
-  "license": "UNLICENSED",
-  "keywords": [],
+  "license": "MIT",
+  "keywords": [
+    "redux",
+    "thunk",
+    "async",
+    "middleware",
+    "redux-middleware",
+    "socket.io",
+    "websockets",
+    "flux"
+  ],
   "author": {
     "name": "Michael Mitchell",
-    "email": "mike@limres.com"
+    "email": "michael@michaelmitchell.co.nz"
   },
   "maintainers": [
     {
-      "name": "michaelmitchell",
-      "email": "mike@limres.com"
+      "name": "Michael Mitchell",
+      "email": "michael@michaelmitchell.co.nz"
     }
   ],
   "main": "build/index.js",
