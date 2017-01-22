@@ -50,9 +50,29 @@ export function createClient(socket, ...args) {
   const options = { ...defaultClientOptions, ...userOptions };
 
   //
-  return {
-    middleware: createReduxMiddleware(socket, reducer, options),
-    eventEmitter: createReduxEventEmitter(socket, options)
+  const middleware = createReduxMiddleware(socket, reducer, options);
+  const eventEmitter = createReduxEventEmitter(socket, options);
+
+  //
+  return (createStore) => (reducer, preloadedState, enhancer) => {
+    //
+    const store = createStore(
+      eventEmitter(reducer),
+      preloadedState,
+      enhancer
+    );
+
+    //
+    const middlewareAPI = {
+      dispatch: (action) => store.dispatch(action),
+      getState: store.getState
+    };
+
+    //
+    const dispatch = middleware(middlewareAPI)(store.dispatch);
+
+    //
+    return { ...store, dispatch };
   };
 }
 

@@ -7,7 +7,7 @@ npm install redux-socket.io-connect --save
 ```
 ### Example usage
 #### Client setup
-Redux socket.io connect uses a [redux store enhancer](https://github.com/reactjs/redux/blob/master/docs/Glossary.md) to automatically emit events to the server and a [redux middleware](http://redux.js.org/docs/advanced/Middleware.html) that listens to the server and dispatches actions it receives to the redux store.
+Redux socket.io connect uses a higher order [redux reducer](https://github.com/reactjs/redux/blob/master/docs/Glossary.md) to automatically emit action events to the server and a [redux middleware](http://redux.js.org/docs/advanced/Middleware.html) that listens to the server and dispatches actions it receives to the redux store. `createClient` returns a [store enhancer](https://github.com/reactjs/redux/blob/master/docs/Glossary.md) that automatically applies both.
 ```js
 import React from 'react';
 import { applyMiddleware, createStore, compose } from 'redux';
@@ -19,14 +19,14 @@ import reducers from './reducers';
 const socket = io();
 const client = createClient(socket);
 
-const store = createStore(
-  compose(client.eventEmitter)(reducers),
-  compose(applyMiddleware(client.middleware), devTools)
-);
+const store = createStore(reducers, compose(
+  client,
+  // devTools
+));
 ...
 ```
 #### Server setup
-The server listens for dispatched actions and uses **handlers** which are very similar to [**redux reducers**](http://redux.js.org/docs/basics/Reducers.html) to perform server side tasks and have the ability to dispatch new actions back to one or more connected clients.
+The server listens for dispatched actions and uses **handlers** which are very similar to [redux reducers](http://redux.js.org/docs/basics/Reducers.html) to perform server side tasks and have the ability to dispatch new actions back to one or more connected clients.
 ```js
 import express from 'express';
 import http from 'http';
@@ -57,7 +57,7 @@ export function load(path) {
   };
 }
 ```
-You can change the default behaviour to emit all events by configuring the event emitter during client setup.
+You can change the default behaviour to emit all action events by configuring the event emitter during client setup.
 ```js
 const client = createClient(socket, { emitAll: true });
 ```
@@ -83,7 +83,7 @@ The handlers use a similar approach to [redux reducers](http://redux.js.org/docs
   // dispatch new actions
 }
 ```
-We can use the `createHandler` and `combineHandlers` functions that behave in a similar way to their [redux counterparts](http://redux.js.org/docs/api/combineReducers.html) to aid in creating and composing handlers. The context provides access to a simple dispatch function that will relay an action back to the client who dispatched the original action.
+You can use the `createHandler` and `combineHandlers` functions that behave in a similar way to their [redux counterparts](http://redux.js.org/docs/api/combineReducers.html) to aid in creating and composing handlers. The context provides access to a simple dispatch function that will relay an action back to the client who dispatched the original action.
 ```js
 import { createHandler } from 'redux-socket.io-connect';
 
@@ -119,24 +119,21 @@ The rest is left up to your imagination, redux socket.io connect provides you wi
 ## API Reference
 #### `createClient(client, [userOptions])`
 #### `createClient(client, [reducer], [userOptions])`
-Creates and returns both the `eventEmitter` and `middleware` required for the redux store by calling `createReduxEventEmitter` and `createReduxMiddleware` at the same time.
 ##### Paramaters
 * `client` ([Client](http://socket.io/docs/client-api/)) the socket.io client used to send and receive events.
-* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io events triggered by middleware. See `createReduxEventEmitter` for an example.
+* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io actions dispatched by the middleware. See `createReduxEventEmitter` for an example.
 * `[userOptions]` (Object) --- optional configuration.
   * `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the client.
-  * `emitAll` (Boolean) ---  if `true` all events will be dispatched to the server by default otherwise the default value is `false`.
-  * `eventNmae` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the server.
+  * `emitAll` (Boolean) ---  if `true` all actions will be dispatched to the server by default otherwise the default value is `false`.
+  * `eventName` (String) ---  optional override to the event name used by the event emitter when dispatching actions to the server, this should match the `eventName` used by the server.
 
 ##### Returns
-* (Object)
-  * `eventEmitter` (Function) --- the redux store enhancer.
-  * `middleware` (Function) --- the redux middleware.
+* (Function) --- returns a redux store enhancer that applies the `eventEmitter` higher order reducer and middleware.
 
 #### `createReduxMiddleware(client, [reducer], [userOptions])`
 ##### Paramaters
 * `client` ([Client](http://socket.io/docs/client-api/)) the socket.io client used to send and receive events.
-* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io events triggered by middleware.
+* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io actions dispatched by the middleware.
   ```js
   import { actionTypes } from 'redux-socket.io-connect';
 
@@ -159,10 +156,10 @@ Creates and returns both the `eventEmitter` and `middleware` required for the re
   const middleware = createReduxMiddleware(socket, actionReducer);
   ```
 * `[userOptions]` (Object) --- optional configuration.
-  * `eventNmae` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the server.
+  * `eventName` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the server.
 
 ##### Returns
-* (Function) --- the redux middleware that listens for incoming events and dispatches them to the store.
+* (Function) --- the redux middleware that listens for incoming action events and dispatches them to the store.
 
 ##### Actions
 The middeware dispatches the following redux actions.
@@ -196,11 +193,11 @@ export default reducer = createReducer(initialState, {
 * `client` ([Client](http://socket.io/docs/client-api/)) the socket.io client used to send and receive events.
 * `[userOptions]` (Object) --- optional configuration
   * `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the client. [redux-socket.io-connect](https://github.com/michaelmitchell/redux-socket.io-connect)
-  * `emitAll` (Boolean) ---  if `true` all events will be dispatched to the server by default otherwise the default value is `false`.
-  * `eventNmae` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the server.
+  * `emitAll` (Boolean) ---  if `true` all actions will be dispatched to the server by default otherwise the default value is `false`.
+  * `eventName` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the server.
 
 ##### Returns
-* (Function) --- the redux store enhancer that dispatches actions to the server.
+* (Function) --- the redux higher order reducer that dispatches actions to the server.
 
 ##### Actions
 The event emitter dispatches redux actions to the server under the following conditions.
@@ -217,7 +214,7 @@ The event emitter dispatches redux actions to the server under the following con
 * `handler` (Function) --- a handler function for executing server side tasks and dispatching new events to the clients.
   * `[userOptions]` (Object) --- optional  configuration
   `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
-  * `eventNmae` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the client.
+  * `eventName` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the client.
 
 #### `createHandler(actions)`
 `createHandler` is function that lets us express handlers as an object mapping of action types to handlers, it works the same way as [redux-create-reducer](https://github.com/kolodny/redux-create-reducer) which you might already be fimilar with.
