@@ -144,7 +144,7 @@ The rest is left up to your imagination, redux socket.io connect provides you wi
       return {
         ...action
         meta: {
-          ...action.meta
+          ...action.meta,
           auth: localStorage.getItem('authToken')
         }
       };
@@ -163,8 +163,8 @@ The rest is left up to your imagination, redux socket.io connect provides you wi
 
 ##### Actions
 The middeware dispatches the following redux actions.
-* `@@redux-socket.io-connect/CONNECT` --- dispatched only once on first `connect` event event from socket.io.
-* `@@redux-socket.io-connect/CONNECT_ERROR` --- dispatched only once on first `connect_error` event from event from socket.io.
+* `@@redux-socket.io-connect/CONNECT` --- dispatched only once on first `connect` event from socket.io.
+* `@@redux-socket.io-connect/CONNECT_ERROR` --- dispatched only once on first `connect_error` event from socket.io.
 * `@@redux-socket.io-connect/CONNECT_TIMEOUT` --- dispatched only once on first `connect_timeout` event from socket.io.
 * `@@redux-socket.io-connect/RECONNECT` --- dispatched on every `reconnect` event  from socket.io.
 * `@@redux-socket.io-connect/RECONNECTING` --- dispatched on every `reconnecting` event  from socket.io.
@@ -212,8 +212,8 @@ The event emitter dispatches redux actions to the server under the following con
 ##### Paramaters
 * `server` ([Server](http://socket.io/docs/server-api/)) the socket.io server used to send and recieve events.
 * `handler` (Function) --- a handler function for executing server side tasks and dispatching new events to the clients.
-  * `[userOptions]` (Object) --- optional  configuration
-  `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
+* `[userOptions]` (Object) --- optional  configuration
+  *`dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
   * `eventName` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the client.
 
 #### `createHandler(actions)`
