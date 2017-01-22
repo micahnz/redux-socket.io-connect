@@ -147,7 +147,7 @@ Creates and returns both the `eventEmitter` and `middleware` required for the re
       return {
         ...action
         meta: {
-          ...action.meta
+          ...action.meta,
           auth: localStorage.getItem('authToken')
         }
       };
@@ -166,8 +166,8 @@ Creates and returns both the `eventEmitter` and `middleware` required for the re
 
 ##### Actions
 The middeware dispatches the following redux actions.
-* `@@redux-socket.io-connect/CONNECT` --- dispatched only once on first `connect` event event from socket.io.
-* `@@redux-socket.io-connect/CONNECT_ERROR` --- dispatched only once on first `connect_error` event from event from socket.io.
+* `@@redux-socket.io-connect/CONNECT` --- dispatched only once on first `connect` event from socket.io.
+* `@@redux-socket.io-connect/CONNECT_ERROR` --- dispatched only once on first `connect_error` event from socket.io.
 * `@@redux-socket.io-connect/CONNECT_TIMEOUT` --- dispatched only once on first `connect_timeout` event from socket.io.
 * `@@redux-socket.io-connect/RECONNECT` --- dispatched on every `reconnect` event  from socket.io.
 * `@@redux-socket.io-connect/RECONNECTING` --- dispatched on every `reconnecting` event  from socket.io.
