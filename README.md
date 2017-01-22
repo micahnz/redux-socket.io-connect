@@ -216,7 +216,7 @@ The event emitter dispatches redux actions to the server under the following con
 * `server` ([Server](http://socket.io/docs/server-api/)) the socket.io server used to send and recieve events.
 * `handler` (Function) --- a handler function for executing server side tasks and dispatching new events to the clients.
   * `[userOptions]` (Object) --- optional  configuration
-  `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
+  * `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
   * `eventNmae` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the client.
 
 #### `createHandler(actions)`
