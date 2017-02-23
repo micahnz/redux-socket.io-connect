@@ -121,7 +121,7 @@ The rest is left up to your imagination, redux socket.io connect provides you wi
 #### `createClient(client, [reducer], [userOptions])`
 ##### Paramaters
 * `client` ([Client](http://socket.io/docs/client-api/)) the socket.io client used to send and receive events.
-* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io actions dispatched by the middleware. See `createReduxEventEmitter` for an example.
+* `[eventReducer]` (Function) --- optional reducer for manipulating the default socket.io actions dispatched by the middleware. See `createReduxEventEmitter` for an example.
 * `[userOptions]` (Object) --- optional configuration.
   * `dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the client.
   * `emitAll` (Boolean) ---  if `true` all actions will be dispatched to the server by default otherwise the default value is `false`.
@@ -133,7 +133,7 @@ The rest is left up to your imagination, redux socket.io connect provides you wi
 #### `createReduxMiddleware(client, [reducer], [userOptions])`
 ##### Paramaters
 * `client` ([Client](http://socket.io/docs/client-api/)) the socket.io client used to send and receive events.
-* `[reducer]` (Function) --- optional action reducer for manipulating incoming and outgoing actions, this can be useful for adding authentication to the default socket.io actions dispatched by the middleware.
+* `[eventReducer]` (Function) --- optional reducer for manipulating the default socket.io actions dispatched by the middleware.
   ```js
   import { actionTypes } from 'redux-socket.io-connect';
 
@@ -208,10 +208,11 @@ The event emitter dispatches redux actions to the server under the following con
 * `action.meta.emit` is `true` will always dispatch an action to the server.
 * If `action.meta.emit` is set to a `'customEventName'` it will only be dispatched if it matches the event emitters `eventName`.
 
-#### `createServer(server, handler, [userOptions])`
+#### `createServer(server, handler, [enhancer], [userOptions])`
 ##### Paramaters
 * `server` ([Server](http://socket.io/docs/server-api/)) the socket.io server used to send and recieve events.
 * `handler` (Function) --- a handler function for executing server side tasks and dispatching new events to the clients.
+* `[enhancer]` (Function) --- a higher-order function that allows you to alter the context that will be provided to the handler.
 * `[userOptions]` (Object) --- optional  configuration
   *`dispatchedBy` (String) --- optional override to the value used to fill the `dispatchedBy` property that is automatically added to the `meta` property of actions dispatched by the server.
   * `eventName` (String) ---  optional override to the event name used by the event emitter when sending requests to the server, this should match the `eventName` used by the client.

@@ -38,19 +38,20 @@ const defaultServerOptions = {
 
 //
 const defaultReducer = (state, action) => action;
+const defaultEnhancer = (context) => context;
 
 // createClient(socket)
 // createClient(socket, userOptions = {})
-// createClient(socket, reducer = defaultReducer, userOptions = {})
+// createClient(socket, eventReducer = defaultReducer, userOptions = {})
 export function createClient(socket, ...args) {
-  const reducer = (args.length < 2) ? defaultReducer : args[0];
+  const eventReducer = (args.length < 2) ? defaultReducer : args[0];
   const userOptions = (args.length < 2) ? args[0] : args[1];
 
   //
   const options = { ...defaultClientOptions, ...userOptions };
 
   //
-  const middleware = createReduxMiddleware(socket, reducer, options);
+  const middleware = createReduxMiddleware(socket, eventReducer, options);
   const eventEmitter = createReduxEventEmitter(socket, options);
 
   //
@@ -86,22 +87,22 @@ function handleEvent(store, reducer = defaultReducer) {
 }
 
 //
-function handleAction(store, reducer = defaultReducer) {
-  return (message = {}) => {
-    const { dispatch, getState } = store;
+function handleAction(store) {
+  return (action) => {
+    const { dispatch } = store;
 
-    return dispatch(reducer(getState(), message));
+    return dispatch(action);
   };
 }
 
 //
-export function createReduxMiddleware(socket, reducer = defaultReducer, userOptions = {}) {
+export function createReduxMiddleware(socket, eventReducer = defaultReducer, userOptions = {}) {
   //
   const options = { ...defaultClientOptions, ...userOptions };
 
   //
   return (store) => {
-    const onEvent = handleEvent(store, reducer);
+    const onEvent = handleEvent(store, eventReducer);
 
     //
     socket.once("connect", onEvent(actionTypes.CONNECT));
@@ -115,7 +116,7 @@ export function createReduxMiddleware(socket, reducer = defaultReducer, userOpti
     socket.on("reconnect_failed", onEvent(actionTypes.RECONNECT_FAILED));
 
     //
-    socket.on(options.eventName, handleAction(store, reducer));
+    socket.on(options.eventName, handleAction(store));
 
     //
     return (next) => (action) => next(action);
@@ -155,12 +156,12 @@ export function createReduxEventEmitter(eventEmitter, userOptions = {}) {
 //
 const defaultHandler = () => {};
 
-//
-export function createServer(server, handler = defaultHandler, userOptions = {}) {
+// createServer(socket, handler = defaultReducer, enhancer = defaultEnhancer, userOptions = {})
+export function createServer(server, handler = defaultHandler, enhancer = defaultEnhancer, userOptions = {}) {
   const options = { ...defaultServerOptions, ...userOptions };
 
   server.on("connection", (client) => {
-    const context = createContext(server, client, options);
+    const context = enhancer(createContext(server, client, options));
 
     client.on(options.eventName, (action) => {
       handler(context, action);
