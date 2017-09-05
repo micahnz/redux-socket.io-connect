@@ -178,7 +178,7 @@ import { createReducer } from 'redux-create-reducer';
 const initialState = { connected: false, error: false };
 
 export default reducer = createReducer(initialState, {
-  [actionTypes.CONNECT]: (state, action) {
+  [actionTypes.CONNECT]: (state, action) => {
     return { ...state, connected: true };
   },
   [actionTypes.CONNECT_ERROR]: (state, action) => {
