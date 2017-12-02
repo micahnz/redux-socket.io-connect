@@ -233,3 +233,6 @@ The combineHandlers helper function turns an object or array whose values are di
 
 ## License
 MIT
+
+---
+[![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/michaelmitchell/donate)
